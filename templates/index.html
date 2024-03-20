@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Money Laundering (AML) Detection</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="">
+<header class="bg-pink-700 text-white py-4">
+  <div class="container mx-auto flex justify-between items-center px-4">
+    <h1 class="text-2xl font-bold">Money Laundering</h1>
+    <ul class="flex space-x-4 text-xl font-semibold">
+      <li class="text-white"><a href="#home">Home</a></li>
+      <li class="text-white"><a href="#about">About</a></li>
+      <li class="text-white"><a href="#prediction">Prediction</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="home">
+    <div class="container mx-auto my-8 px-4">
+  <div class="flex flex-col md:flex-row justify-between space-x-16">
+    <div class="bg-white p-4 my-16 w-96">
+      <h2 class="text-3xl font-bold mb-8">Welcome to Our Website</h2>
+    <p class="text-2xl text-gray-600 mb-4">Use our platform to detect potential money laundering activities within your company.</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow-sm">
+       <img src="{{ url_for('static', filename='image/img.png') }}" alt="">
+    </div>
+  </div>
+</div>
+</section>
+<section id="about" class="container mx-auto my-8 px-4">
+     <hr>
+  <div class="bg-white p-8 rounded-lg">
+   <div class="text-center mb-8">
+        <h2 class="text-4xl font-bold mb-4 text-pink-600">ABOUT US</h2>
+   </div>
+    <p class="text-center text-2xl text-gray-700">We are dedicated to providing advanced tools for detecting and preventing money laundering activities. Our team of experts is committed to helping organizations safeguard their financial transactions and comply with regulatory requirements.</p>
+  </div>
+    <hr>
+</section>
+<section class="bg-white py-16" id="prediction">
+    <h2 class="text-2xl font-bold mb-4 text-center text-pink-600">Anti-Money Laundering (AML) Detection</h2>
+    <div class="max-w-lg mx-auto p-6 bg-white rounded-md shadow-lg">
+    <form id="predictionForm" class="space-y-4">
+        <div>
+            <label for="type" class="block font-semibold">Type:</label>
+            <select class="w-full border rounded-md px-3 py-2" name="type" id="type">
+                <option value="3">Payment</option>
+                <option value="0">Cash In</option>
+                <option value="1">Cash Out</option>
+                <option value="4">Transfer</option>
+                <option value="2">Debit</option>
+            </select>
+<!--            <input type="number" id="type" name="type" class="w-full border rounded-md px-3 py-2" step="any" required>-->
+        </div>
+        <div>
+            <label for="amount" class="block font-semibold">Amount:</label>
+            <input type="text" id="amount" name="amount" class="w-full border rounded-md px-3 py-2" step="any" required>
+        </div>
+        <div>
+            <label for="oldbalanceOrg" class="block font-semibold">Old Balance Origin:</label>
+            <input type="number" id="oldbalanceOrg" name="oldbalanceOrg" class="w-full border rounded-md px-3 py-2" step="any" required>
+        </div>
+        <div>
+            <label for="newbalanceOrig" class="block font-semibold">New Balance Origin:</label>
+            <input type="number" id="newbalanceOrig" name="newbalanceOrig" class="w-full border rounded-md px-3 py-2" step="any" required>
+        </div>
+        <div>
+            <label for="oldbalanceDest" class="block font-semibold">Old Balance Destination:</label>
+            <input type="number" id="oldbalanceDest" name="oldbalanceDest" class="w-full border rounded-md px-3 py-2" step="any" required>
+        </div>
+        <div>
+            <label for="newbalanceDest" class="block font-semibold">New Balance Destination:</label>
+            <input type="number" id="newbalanceDest" name="newbalanceDest" class="w-full border rounded-md px-3 py-2" step="any" required>
+        </div>
+        <div>
+            <button type="submit" class="w-full bg-pink-600 text-white font-bold hover:bg-pink-900 py-2 px-4 rounded-md">Predict</button>
+        </div>
+    </form>
+    <p id="result" class="mt-4 text-2xl font-bold"></p>
+</div>
+</section>
+<footer id="contact" class="bg-pink-800 text-white py-4">
+  <div class="container mx-auto text-center">
+    <p>&copy; 2024 Money Laundering Detection</p>
+  </div>
+</footer>
+
+<script>
+    document.getElementById("predictionForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        let answer = '';
+        if (result.prediction === 1)
+            answer = 'Is Fraudulent'
+         else
+            answer = 'Not Fraudulent'
+        document.getElementById("result").textContent = `This Transaction is: ${answer}`;
+<!--        document.getElementById("predictionForm").reset();-->
+    });
+</script>
+
+</body>
+</html>
