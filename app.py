@@ -90,9 +90,16 @@ def logout():
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.form.to_dict()
-    input_data = [[float(data['type']), float(data['amount']), float(data['oldbalanceOrg']),
-                   float(data['newbalanceOrig']), float(data['oldbalanceDest']), float(data['newbalanceDest'])]]
+    input_data = [[
+        float(data.get('type', 0)),
+        float(data.get('amount', 0)),
+        float(data.get('oldbalanceOrg', 0)),
+        float(data.get('newbalanceOrig', 0)),
+        float(data.get('oldbalanceDest', 0)),
+        float(data.get('newbalanceDest', 0))
+    ]]
     prediction = model.predict(input_data)[0]
+    prediction = int(prediction)  # Convert to standard Python int
     return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
