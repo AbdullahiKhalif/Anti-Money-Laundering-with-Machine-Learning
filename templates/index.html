@@ -22,9 +22,9 @@
         </ul>
 
         <ul class="flex space-x-4">
-          {% if 'username' in session %}
+          {% if 'fullName' in session %}
         
-            <li class="text-slat-600">Welcome <span class="p-2 bg-white text-pink-600" style="border-radius: 300px;">{{ session['username'] }} </span></li>
+            <li class="text-slat-600">Welcome <span class="p-2 bg-white text-pink-600" style="border-radius: 300px;">{{ session['fullName'] }} </span></li>
           
           <li class="text-white">
             <a href="{{ url_for('logout') }}"
