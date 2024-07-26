@@ -89,7 +89,7 @@ def signup():
 
         cursor.execute("""
             INSERT INTO users (fullName, email, password, dob, gender, location, userRole)
-            VALUES (%s, %s, %s, %s, %s, %s, 'user')
+            VALUES (%s, %s, %s, %s, %s, %s, 'User')
         """, (fullName, email, password, dob, gender, location))
         conn.commit()
         cursor.close()
@@ -423,4 +423,4 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=2024)
