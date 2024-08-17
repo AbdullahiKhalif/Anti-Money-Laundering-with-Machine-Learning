@@ -10,6 +10,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
   <body class="">
     <header class="bg-pink-700 text-white py-4">
@@ -23,9 +24,9 @@
 
         <ul class="flex space-x-4">
           {% if 'fullName' in session %}
-        
+
             <li class="text-slat-600">Welcome <span class="p-2 bg-white text-pink-600" style="border-radius: 300px;">{{ session['fullName'] }} </span></li>
-          
+
           <li class="text-white">
             <a href="{{ url_for('logout') }}"
               ><i class="fa fa-power-off"></i
@@ -91,7 +92,6 @@
               <option value="4">Transfer</option>
               <option value="2">Debit</option>
             </select>
-            <!--            <input type="number" id="type" name="type" class="w-full border rounded-md px-3 py-2" step="any" required>-->
           </div>
           <div>
             <label for="amount" class="block font-semibold">Amount:</label>
@@ -101,6 +101,8 @@
               name="amount"
               class="w-full border rounded-md px-3 py-2"
               step="any"
+              min="10"
+              max="100000"
               required
             />
           </div>
@@ -175,27 +177,33 @@
     </footer>
 
     <script>
-      document
-        .getElementById("predictionForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
+      $(document).ready(function() {
+        $('#predictionForm').on('submit', function(event) {
+          event.preventDefault(); // Prevent the default form submission
 
-          const formData = new FormData(this);
+          // Serialize the form data
+          var formData = $(this).serialize();
 
-          const response = await fetch("/predict", {
-            method: "POST",
-            body: formData,
+          // Send the AJAX request
+          $.ajax({
+            url: '/predict',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+              let answer = "";
+              if (response.prediction === 1) {
+                answer = "Is Fraudulent";
+              } else {
+                answer = "Not Fraudulent";
+              }
+              $('#result').text(`This Transaction is: ${answer}`);
+            },
+            error: function() {
+              $('#result').text('An error occurred while processing your request.');
+            }
           });
-
-          const result = await response.json();
-          let answer = "";
-          if (result.prediction === 1) answer = "Is Fraudulent";
-          else answer = "Not Fraudulent";
-          document.getElementById(
-            "result"
-          ).textContent = `This Transaction is: ${answer}`;
-          <!--        document.getElementById("predictionForm").reset();-->
         });
+      });
     </script>
   </body>
 </html>

@@ -8,7 +8,7 @@ import predictions
 app = Flask(__name__)
 
 # Load the saved model
-model = joblib.load('model/random_forest_model.pkl')
+model = joblib.load('model/QuadraticDiscriminantAnalysisl.pkl')
 
 app.secret_key = "your_secret_key"  # Change this to a random string
 
@@ -272,15 +272,21 @@ def predictions():
     conn.close()
     return render_template('adminDashboard.html', transaction=transaction, content='transactions')
 
+
 @app.route('/transactions/update/<int:id>', methods=['POST'])
 def update_transactions(id):
     data = request.form.to_dict()
-    transaction_types = {0: "Cash In", 1: "Cash Out", 2: "Debit", 3: "Payment", 4: "Transfer"}
-    transaction_type = transaction_types.get(int(data.get('type', 0)), "Unknown")  # Get transaction type with default
 
-    # Ensure all six features are provided correctly:
+    # Mapping from numeric types to string labels for database storage
+    transaction_types = {0: "Cash In", 1: "Cash Out", 2: "Debit", 3: "Payment", 4: "Transfer"}
+
+    # Fetching the type as a numeric value for prediction
+    type_numeric = float(data.get('type', 0))
+    transaction_type = transaction_types.get(int(type_numeric), "Unknown")  # Map to string for database
+
+    # Prepare input data for the model (ensure the input is in the expected format)
     input_data = [
-        float(data.get('type', 0)),  # Assuming 'type' needs to be included as a feature
+        type_numeric,  # Assuming this needs to be a float or integer as used during training
         float(data.get('amount', 0)),
         float(data.get('oldbalanceOrg', 0)),
         float(data.get('newbalanceOrig', 0)),
@@ -288,22 +294,34 @@ def update_transactions(id):
         float(data.get('newbalanceDest', 0))
     ]
 
-    prediction = model.predict([input_data])[0]  # Ensure input to model.predict() is a 2D array
-    prediction = int(prediction)  # Convert numpy int to standard Python int
+    try:
+        # Predicting the fraud likelihood
+        prediction = model.predict([input_data])[0]  # Model expects a 2D array
+        prediction = int(prediction)  # Convert numpy int to standard Python int
 
-    # Save the prediction and input data to the database
-    conn = mysql.connector.connect(**mysql_config)
-    cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE predictions SET type=%s, amount=%s, oldbalanceOrg=%s, newbalanceOrig=%s, oldbalanceDest=%s, newbalanceDest=%s, isFraud=%s WHERE id=%s
-    """, (transaction_type, data['amount'], data['oldbalanceOrg'], data['newbalanceOrig'],
-          data['oldbalanceDest'], data['newbalanceDest'], prediction, id))
-    conn.commit()
-    cursor.close()
-    conn.close()
+        # Update the transaction in the database
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE predictions 
+            SET type=%s, amount=%s, oldbalanceOrg=%s, newbalanceOrig=%s, oldbalanceDest=%s, newbalanceDest=%s, isFraud=%s 
+            WHERE id=%s
+        """, (transaction_type, data['amount'], data['oldbalanceOrg'], data['newbalanceOrig'],
+              data['oldbalanceDest'], data['newbalanceDest'], prediction, id))
+        conn.commit()
 
-    flash('Transaction successfully updated', 'success')
-    return jsonify({'prediction': prediction})  # Ensure 'transactions' is a valid endpoint
+        flash('Transaction successfully updated', 'success')
+        return jsonify({'prediction': prediction})
+
+    except Exception as e:
+        # Handle exceptions and rollback if needed
+        conn.rollback()
+        flash(f'An error occurred: {str(e)}', 'error')
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @app.route('/transactions/add', methods=['POST'])
