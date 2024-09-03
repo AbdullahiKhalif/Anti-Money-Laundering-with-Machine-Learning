@@ -5,206 +5,203 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Transactions</title>
     <style>
-  .modal-vertical .modal-dialog {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem; /* Adjusts the margin between modals */
-  }
-
-  .modal-vertical .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .modal-vertical .btn-primary {
-    margin-top: 1rem;
-  }
-</style>
+        .modal-vertical .modal-dialog {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem; /* Adjusts the margin between modals */
+        }
+        .modal-vertical .form-group {
+            margin-bottom: 1rem;
+        }
+        .modal-vertical .btn-primary {
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
 <main class="content">
-				<div class="container-fluid p-0">
-					<div class="row">
-						<div class="col-12">
-							<div class="card">
-								<div class="card-header">
-								<i class="fa fa-broken fs-4 text-primary"></i> <span class="card-title fs-5">Transaction Table</span>
-									<h6 class="card-subtitle text-muted fs-6">You can add new Predictions, update and delete also. fill free to use our system😍.</h6>
-									<hr style="border: 1px solid #000;">
-									<button type="button" class="btn btn-primary my-1 float-end" data-bs-toggle="modal" data-bs-target="#addTransactionModal" id="addNew">
-                                        Add New Prediction
-                                    </button>
-
-								</div>
-								<div class="card-body">
-									<table id="categoryTable" class="table table-striped DataTableResponsive" style="width:100%">
-										<thead class="table" style="font-size: 15px;">
-											<tr>
-												<th>#</th>
-												<th>Type</th>
-												<th>Amount</th>
-												<th>Old Balance Orig</th>
-												<th>New Balance Orig</th>
-												<th>Old Balance Dest</th>
-												<th>New Balance Dest</th>
-												<th>Is Fraud</th>
-												<th>Date</th>
-												<th>Actions</th>
-											</tr>
-										</thead>
-										<tbody style="font-size: 12px;">
-											{% for trans in transaction %}
-												<tr>
-													<td>{{ trans['id'] }}</td>
-													<td>{{ trans['type'] }}</td>
-													<td>{{ trans['amount'] }}</td>
-													<td>{{ trans['oldbalanceOrg'] }}</td>
-													<td>{{ trans['newbalanceOrig'] }}</td>
-													<td>{{ trans['oldbalanceDest'] }}</td>
-													<td>{{ trans['newbalanceDest'] }}</td>
-													<td>{{ trans['isFraud'] }}</td>
-													<td>{{ trans['date'] }}</td>
-                                                    <td>
-                                                        <a class="btn btn-info" onclick="showUpdateModal('{{ trans.id }}', '{{ trans.type }}', '{{ trans.amount }}', '{{ trans.oldbalanceOrg }}', '{{ trans.newbalanceOrig }}', '{{ trans.oldbalanceDest }}', '{{ trans.newbalanceDest }}')"><i class="fa fa-edit text-light"></i></a>
-														<a class="btn btn-danger" onclick="deleteTransaction('{{ trans.id }}')"><i class="fa fa-trash text-light"></i></a>
-
-                                                    </td>
-												</tr>
-											 {% endfor %}
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-
-				</div>
-<!-- Add Transaction Modal -->
-<div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-vertical">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTransactionModalLabel">Add New Prediction</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="addTransactionForm">
-          <div class="row">
-            <div class="form-group col-md-12">
-              <label for="type" class="block fw-bold">Type:</label>
-              <select class="form-control" name="type">
-                <option value="3">Payment</option>
-                <option value="0">Cash In</option>
-                <option value="1">Cash Out</option>
-                <option value="4">Transfer</option>
-                <option value="2">Debit</option>
-              </select>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa fa-broken fs-4 text-primary"></i>
+                        <span class="card-title fs-5">Transaction Table</span>
+                        <h6 class="card-subtitle text-muted fs-6">
+                            You can add new Predictions, update and delete also. feel free to use our system😍.
+                        </h6>
+                        <hr style="border: 1px solid #000;">
+                        <button type="button" class="btn btn-primary my-1 float-end" data-toggle="modal" data-target="#addTransactionModal" id="addNew">
+                            Add New Prediction
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table id="categoryTable" class="table table-striped DataTableResponsive" style="width:100%">
+                            <thead class="table" style="font-size: 15px;">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Old Balance Orig</th>
+                                    <th>New Balance Orig</th>
+                                    <th>Old Balance Dest</th>
+                                    <th>New Balance Dest</th>
+                                    <th>Is Fraud</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 12px;">
+                                {% for trans in transaction %}
+                                    <tr>
+                                        <td>{{ trans['id'] }}</td>
+                                        <td>{{ trans['type'] }}</td>
+                                        <td>{{ trans['amount'] }}</td>
+                                        <td>{{ trans['oldbalanceOrg'] }}</td>
+                                        <td>{{ trans['newbalanceOrig'] }}</td>
+                                        <td>{{ trans['oldbalanceDest'] }}</td>
+                                        <td>{{ trans['newbalanceDest'] }}</td>
+                                        <td>{{ trans['isFraud'] }}</td>
+                                        <td>{{ trans['date'] }}</td>
+                                        <td>
+                                            <a class="btn btn-info"
+                                               onclick="showUpdateModal('{{ trans.id }}', '{{ transaction_types_reverse[trans.type] }}', '{{ trans.amount }}', '{{ trans.oldbalanceOrg }}', '{{ trans.newbalanceOrig }}', '{{ trans.oldbalanceDest }}', '{{ trans.newbalanceDest }}')">
+                                               <i class="fa fa-edit text-light"></i>
+                                            </a>
+                                            <a class="btn btn-danger" onclick="deleteTransaction('{{ trans.id }}')">
+                                               <i class="fa fa-trash text-light"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Amount:</label>
-              <input type="number" name="amount" class="form-control" step="any"  max="100000" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Old Balance Origin:</label>
-              <input type="number" name="oldbalanceOrg" step="any" class="form-control" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">New Balance Origin:</label>
-              <input type="number" name="newbalanceOrig" class="form-control" step="any" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Old Balance Destination:</label>
-              <input type="number" name="oldbalanceDest" class="form-control" step="any" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">New Balance Destination:</label>
-              <input type="number" name="newbalanceDest" class="form-control" step="any" required />
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary">Add Prediction</button>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Update Transaction Modal -->
-<div class="modal fade" id="updateTransactionModal" tabindex="-1" aria-labelledby="updateTransactionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-vertical">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="updateTransactionModalLabel">Update Prediction Info!</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="updateTransactionForm">
-          <div class="form-group">
-            <input type="hidden" class="form-control" id="id" name="id">
-          </div>
-          <div class="row">
-            <div class="form-group col-md-12">
-              <label for="type" class="block fw-bold">Type:</label>
-              <select class="form-control" name="type" id="type">
-                <option value="3">Payment</option>
-                <option value="0">Cash In</option>
-                <option value="1">Cash Out</option>
-                <option value="4">Transfer</option>
-                <option value="2">Debit</option>
-              </select>
+    <!-- Add Transaction Modal -->
+    <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-vertical">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTransactionModalLabel">Add New Prediction</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTransactionForm">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="type" class="block fw-bold">Type:</label>
+                                <select class="form-control" name="type">
+                                    <option value="3">Payment</option>
+                                    <option value="0">Cash In</option>
+                                    <option value="1">Cash Out</option>
+                                    <option value="4">Transfer</option>
+                                    <option value="2">Debit</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Amount:</label>
+                                <input type="number" name="amount" class="form-control" step="any" max="100000" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Old Balance Origin:</label>
+                                <input type="number" name="oldbalanceOrg" step="any" class="form-control" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">New Balance Origin:</label>
+                                <input type="number" name="newbalanceOrig" class="form-control" step="any" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Old Balance Destination:</label>
+                                <input type="number" name="oldbalanceDest" class="form-control" step="any" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">New Balance Destination:</label>
+                                <input type="number" name="newbalanceDest" class="form-control" step="any" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Prediction</button>
+                    </form>
+                </div>
             </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Amount:</label>
-              <input type="number" id="amount" name="amount"  step="any"  max="100000" class="form-control" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Old Balance Origin:</label>
-              <input type="number" id="oldbalanceOrg" name="oldbalanceOrg" step="any" class="form-control" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">New Balance Origin:</label>
-              <input type="number" id="newbalanceOrig" name="newbalanceOrig" step="any" class="form-control" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">Old Balance Destination:</label>
-              <input type="number" id="oldbalanceDest" name="oldbalanceDest" step="any" class="form-control" required />
-            </div>
-            <div class="form-group col-md-12">
-              <label class="block fw-bold">New Balance Destination:</label>
-              <input type="number" id="newbalanceDest" name="newbalanceDest" step="any" class="form-control" required />
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary">Update Prediction</button>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
 
-
+    <!-- Update Transaction Modal -->
+    <div class="modal fade" id="updateTransactionModal" tabindex="-1" aria-labelledby="updateTransactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-vertical">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateTransactionModalLabel">Update Prediction Info!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateTransactionForm">
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="id" name="id">
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="type" class="block fw-bold">Type:</label>
+                                <select class="form-control" name="type" id="type">
+                                    <option value="3">Payment</option>
+                                    <option value="0">Cash In</option>
+                                    <option value="1">Cash Out</option>
+                                    <option value="4">Transfer</option>
+                                    <option value="2">Debit</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Amount:</label>
+                                <input type="number" id="amount" name="amount" step="any" max="100000" class="form-control" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Old Balance Origin:</label>
+                                <input type="number" id="oldbalanceOrg" name="oldbalanceOrg" step="any" class="form-control" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">New Balance Origin:</label>
+                                <input type="number" id="newbalanceOrig" name="newbalanceOrig" step="any" class="form-control" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">Old Balance Destination:</label>
+                                <input type="number" id="oldbalanceDest" name="oldbalanceDest" step="any" class="form-control" required />
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="block fw-bold">New Balance Destination:</label>
+                                <input type="number" id="newbalanceDest" name="newbalanceDest" step="any" class="form-control" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Prediction</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
 
-
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 
 <!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-<script>
-$('#addNew').on('click', function() {
-    $('#addTransactionModal').modal('show');
-});
 
-    function showUpdateModal(id, type, amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest) {
+<script>
+function showUpdateModal(id, type, amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest) {
     $('#updateTransactionForm input[name="id"]').val(id);
-    $('#updateTransactionForm input[name="type"]').val(type);
+    $('#updateTransactionForm select[name="type"]').val(type);  // Correctly set the value of the select element
     $('#updateTransactionForm input[name="amount"]').val(amount);
     $('#updateTransactionForm input[name="oldbalanceOrg"]').val(oldbalanceOrg);
     $('#updateTransactionForm input[name="newbalanceOrig"]').val(newbalanceOrig);
@@ -213,8 +210,7 @@ $('#addNew').on('click', function() {
     $('#updateTransactionModal').modal('show');
 }
 
-
-    $('#addTransactionForm').on('submit', function(e) {
+$('#addTransactionForm').on('submit', function(e) {
     e.preventDefault();
     $.ajax({
         url: '/transactions/add',
@@ -222,11 +218,11 @@ $('#addNew').on('click', function() {
         data: $(this).serialize(),
         success: function(resp) {
             if(resp.prediction == 1){
-                Swal.fire('Warning', `This Transaction is Fraudulent and saved successfully into database`, 'warning');
+                Swal.fire('Warning', `This Transaction is Fraudulent and saved successfully into the database`, 'warning');
                $('#addTransactionForm').trigger('reset');
                 $('#addTransactionModal').modal('hide');
             } else {
-                Swal.fire('Success', `This Transaction is Not Fraudulent and saved successfully into database`, 'success');
+                Swal.fire('Success', `This Transaction is Not Fraudulent and saved successfully into the database`, 'success');
                 $('#addTransactionModal').modal('hide');
             }
         },
@@ -236,8 +232,7 @@ $('#addNew').on('click', function() {
     });
 });
 
-
-    $('#updateTransactionForm').on('submit', function(e) {
+$('#updateTransactionForm').on('submit', function(e) {
     e.preventDefault();
     $.ajax({
         url: '/transactions/update/' + $('input[name="id"]').val(),
@@ -245,22 +240,21 @@ $('#addNew').on('click', function() {
         data: $(this).serialize(),
         success: function(resp) {
             if(resp.prediction == 1){
-                Swal.fire('Warning', `This Transaction is Fraudulent and saved successfully into database`, 'warning');
+                Swal.fire('Warning', `This Transaction is Fraudulent and saved successfully into the database`, 'warning');
                 $("#updateTransactionForm")[0].reset();
                 $('#updateTransactionModal').modal('hide');
             } else {
-                Swal.fire('Success', `This Transaction is Not Fraudulent and saved successfully into database`, 'success');
+                Swal.fire('Success', `This Transaction is Not Fraudulent and saved successfully into the database`, 'success');
                 $('#updateTransactionModal').modal('hide');
             }
         },
         error: function() {
-            Swal.fire('Error', 'Failed to update user', 'error');
+            Swal.fire('Error', 'Failed to update the transaction', 'error');
         }
     });
 });
 
-
-    function deleteTransaction(id) {
+function deleteTransaction(id) {
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -288,7 +282,6 @@ $('#addNew').on('click', function() {
         }
     });
 }
-
 </script>
 </body>
 </html>

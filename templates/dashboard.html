@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
+            <!-- Total Users -->
             <div class="col-sm-3">
                 <div class="card bg-success" style="height: 150px;">
                     <div class="card-body">
@@ -25,12 +33,13 @@
                 </div>
             </div>
 
+            <!-- Total Admins -->
             <div class="col-sm-3">
                 <div class="card bg-primary" style="height: 150px;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <h4 class="text-light fw-bold">Total Admins</h4>
-                            <i class="fas fa-box text-light" style="font-size: 45px;"></i>
+                            <i class="fas fa-user-shield text-light" style="font-size: 45px;"></i>
                         </div>
                         <h5 class="text-light text-center mt-3">
                             <span class="text-light" style="font-size:2rem;">{{ total_admins }}</span>
@@ -39,12 +48,13 @@
                 </div>
             </div>
 
+            <!-- Regular Users -->
             <div class="col-sm-3">
                 <div class="card bg-secondary" style="height: 150px;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <h4 class="text-light fw-bold">Regular Users</h4>
-                            <i class="fa fa-list text-light" style="font-size: 35px;"></i>
+                            <i class="fas fa-user text-light" style="font-size: 35px;"></i>
                         </div>
                         <h5 class="text-light text-center mt-3">
                             <span class="text-light" style="font-size:2rem;">{{ total_regular_users }}</span>
@@ -53,6 +63,7 @@
                 </div>
             </div>
 
+            <!-- Total Predictions -->
             <div class="col-sm-3">
                 <div class="card bg-danger" style="height: 150px;">
                     <div class="card-body">
@@ -68,34 +79,61 @@
             </div>
         </div>
 
+        <!-- Pie Charts for Fraud vs Non-Fraud and Gender Distribution -->
         <div class="row mt-4">
-            <div class="col-sm-3">
-                <div class="card bg-warning" style="height: 150px;">
+            <div class="col-sm-6">
+                <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h4 class="fw-bold">Total Non-Fraud</h4>
-                            <i class="fa fa-clock text-light" style="font-size: 35px;"></i>
+                        <h4 class="card-title text-center">Fraud vs Non-Fraud Predictions</h4>
+                        <div class="chart-container">
+                            <canvas id="fraudChart"></canvas>
                         </div>
-                        <h5 class="text-light text-center mt-3">
-                            <span class="text-light" style="font-size:2rem;">{{ total_non_fraud }}</span>
-                        </h5>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3">
-                <div class="card bg-dark" style="height: 150px;">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h4 class="fw-bold text-light">Total Frauds</h4>
-                            <i class="fa fa-clock text-light" style="font-size: 35px;"></i>
-                        </div>
-                        <h5 class="text-light text-center mt-3">
-                            <span class="text-light" style="font-size:2rem;">{{ total_fraud }}</span>
-                        </h5>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Chart.js Script -->
+    <script>
+        // Check if data is correctly passed
+        console.log('Male: {{ total_male }}');
+        console.log('Female: {{ total_female }}');
+
+        // Fraud vs Non-Fraud Chart
+        var ctxFraud = document.getElementById('fraudChart').getContext('2d');
+        var fraudChart = new Chart(ctxFraud, {
+            type: 'pie',
+            data: {
+                labels: ['Non-Fraud', 'Fraud'],
+                datasets: [{
+                    data: [{{ total_non_fraud }}, {{ total_fraud }}],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    borderColor: ['#28a745', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+
+    </script>
 </body>
 </html>

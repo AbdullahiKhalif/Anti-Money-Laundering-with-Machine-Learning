@@ -176,13 +176,16 @@ def home():
     cursor.execute("SELECT COUNT(*) FROM predictions WHERE isFraud=1")
     total_fraud = cursor.fetchone()[0]
 
+
     cursor.close()
     conn.close()
+
 
     return render_template('adminDashboard.html', content='home', total_users=total_users,
                            total_admins=total_admins, total_regular_users=total_regular_users,
                            total_predictions=total_predictions, total_non_fraud=total_non_fraud,
                            total_fraud=total_fraud)
+
 
 @app.route('/users')
 def users():
@@ -268,25 +271,32 @@ def predictions():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM predictions")
     transaction = cursor.fetchall()
+
+    # Reverse mapping from string to numeric values
+    transaction_types_reverse = {
+        "Cash In": 0,
+        "Cash Out": 1,
+        "Debit": 2,
+        "Payment": 3,
+        "Transfer": 4
+    }
+
     cursor.close()
     conn.close()
-    return render_template('adminDashboard.html', transaction=transaction, content='transactions')
-
+    return render_template('adminDashboard.html', transaction=transaction, content='transactions',
+                           transaction_types_reverse=transaction_types_reverse)
 
 @app.route('/transactions/update/<int:id>', methods=['POST'])
 def update_transactions(id):
     data = request.form.to_dict()
 
-    # Mapping from numeric types to string labels for database storage
     transaction_types = {0: "Cash In", 1: "Cash Out", 2: "Debit", 3: "Payment", 4: "Transfer"}
 
-    # Fetching the type as a numeric value for prediction
     type_numeric = float(data.get('type', 0))
-    transaction_type = transaction_types.get(int(type_numeric), "Unknown")  # Map to string for database
+    transaction_type = transaction_types.get(int(type_numeric), "Unknown")
 
-    # Prepare input data for the model (ensure the input is in the expected format)
     input_data = [
-        type_numeric,  # Assuming this needs to be a float or integer as used during training
+        type_numeric,
         float(data.get('amount', 0)),
         float(data.get('oldbalanceOrg', 0)),
         float(data.get('newbalanceOrig', 0)),
@@ -295,11 +305,9 @@ def update_transactions(id):
     ]
 
     try:
-        # Predicting the fraud likelihood
-        prediction = model.predict([input_data])[0]  # Model expects a 2D array
-        prediction = int(prediction)  # Convert numpy int to standard Python int
+        prediction = model.predict([input_data])[0]
+        prediction = int(prediction)
 
-        # Update the transaction in the database
         conn = mysql.connector.connect(**mysql_config)
         cursor = conn.cursor()
         cursor.execute("""
@@ -310,13 +318,10 @@ def update_transactions(id):
               data['oldbalanceDest'], data['newbalanceDest'], prediction, id))
         conn.commit()
 
-        flash('Transaction successfully updated', 'success')
         return jsonify({'prediction': prediction})
 
     except Exception as e:
-        # Handle exceptions and rollback if needed
         conn.rollback()
-        flash(f'An error occurred: {str(e)}', 'error')
         return jsonify({'error': str(e)}), 500
 
     finally:
@@ -327,33 +332,31 @@ def update_transactions(id):
 @app.route('/transactions/add', methods=['POST'])
 def add_transaction():
     if 'id' not in session:
-        return jsonify({'error': 'User not logged in'}), 403  # User must be logged in to proceed
+        return jsonify({'error': 'User not logged in'}), 403
 
     data = request.form.to_dict()
     transaction_types = {0: "Cash In", 1: "Cash Out", 2: "Debit", 3: "Payment", 4: "Transfer"}
-    transaction_type = transaction_types.get(int(data.get('type', 0)), "Unknown")  # Get transaction type with default
+    transaction_type = transaction_types.get(int(data.get('type', 0)), "Unknown")
 
-    # Ensure all six features are provided correctly:
-    input_data = [[
-        float(data.get('type', 0)),  # Assuming 'type' needs to be included as a feature
+    input_data = [
+        float(data.get('type', 0)),
         float(data.get('amount', 0)),
         float(data.get('oldbalanceOrg', 0)),
         float(data.get('newbalanceOrig', 0)),
         float(data.get('oldbalanceDest', 0)),
         float(data.get('newbalanceDest', 0))
-    ]]
+    ]
 
-    prediction = model.predict(input_data)[0]
-    prediction = int(prediction)  # Convert numpy int to standard Python int
+    prediction = model.predict([input_data])[0]
+    prediction = int(prediction)
 
-    # Save the prediction and input data to the database
     conn = mysql.connector.connect(**mysql_config)
     cursor = conn.cursor()
     cursor.execute("""
-           INSERT INTO predictions (userId, type, amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest, isFraud)
-           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-       """, (session['id'], transaction_type, data['amount'], data['oldbalanceOrg'], data['newbalanceOrig'],
-             data['oldbalanceDest'], data['newbalanceDest'], prediction))
+        INSERT INTO predictions (userId, type, amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest, isFraud)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (session['id'], transaction_type, data['amount'], data['oldbalanceOrg'], data['newbalanceOrig'],
+          data['oldbalanceDest'], data['newbalanceDest'], prediction))
     conn.commit()
     cursor.close()
     conn.close()
@@ -369,8 +372,8 @@ def delete_transaction(id):
     cursor.close()
     conn.close()
 
-    flash('Transaction successfully deleted')
-    return jsonify({'delteUser': "delete"} )
+    return jsonify({'delteUser': "delete"})
+
 
 
 @app.route('/reports')
